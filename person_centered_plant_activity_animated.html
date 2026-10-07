@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Can You Make It Grow? — Pair Activity</title>
+<style>
+  :root{
+    --bg:#f7f3e8;
+    --panel:#fffdf8;
+    --panel-2:#eef2e8;
+    --text:#2a3129;
+    --muted:#6d7a68;
+    --accent:#6e8a67;
+    --accent-2:#a66545;
+    --border:#d7ddd1;
+    --shadow:0 8px 24px rgba(51,57,46,.08);
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    background:var(--bg);
+    color:var(--text);
+    line-height:1.45;
+  }
+  .wrap{
+    max-width:1100px;
+    margin:0 auto;
+    padding:24px;
+  }
+  .header{
+    display:flex;
+    justify-content:space-between;
+    gap:16px;
+    align-items:flex-start;
+    flex-wrap:wrap;
+    margin-bottom:18px;
+  }
+  .eyebrow{
+    font-size:.8rem;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+    color:var(--muted);
+    font-weight:700;
+  }
+  h1{
+    font-size:1.9rem;
+    margin:.25rem 0 .35rem;
+    line-height:1.15;
+  }
+  p{margin:.35rem 0}
+  .sub{color:var(--muted); max-width:840px;}
+  button{
+    font:inherit;
+    cursor:pointer;
+  }
+  .ghost, .choice, .primary{
+    border-radius:14px;
+    border:1px solid var(--border);
+    padding:12px 14px;
+    background:#fff;
+    transition:.18s ease;
+  }
+  .ghost:hover, .choice:hover{transform:translateY(-1px); box-shadow:var(--shadow)}
+  .primary{
+    background:var(--accent);
+    color:white;
+    border-color:var(--accent);
+    font-weight:600;
+  }
+  .primary:hover{filter:brightness(.97)}
+  .layout{
+    display:grid;
+    grid-template-columns: minmax(310px, 420px) 1fr;
+    gap:20px;
+  }
+  .card{
+    background:var(--panel);
+    border:1px solid var(--border);
+    border-radius:20px;
+    box-shadow:var(--shadow);
+  }
+  .plant-card{padding:18px}
+  .plant-stage{
+    background:
+      radial-gradient(circle at 82% 17%, rgba(250, 228, 141,.7) 0 7%, transparent 8% 100%),
+      linear-gradient(180deg, #fcfbf8 0%, #f6f2e7 100%);
+    border:1px solid var(--border);
+    border-radius:18px;
+    min-height:360px;padding:12px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    overflow:hidden;
+  }
+  .plant-metrics{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:10px;
+    margin-top:12px;
+  }
+  .metric{
+    text-align:center;
+    border:1px solid var(--border);
+    border-radius:14px;
+    padding:10px;
+    background:#fff;
+  }
+  .metric .label{font-size:.84rem; color:var(--muted)}
+  .metric strong{display:block; margin-top:2px}
+  .content-card{padding:18px}
+  .status{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    color:var(--muted);
+    font-weight:700;
+    font-size:.92rem;
+  }
+  .dot{
+    width:10px; height:10px; border-radius:50%; background:var(--accent);
+    box-shadow:0 0 0 5px rgba(110,138,103,.12);
+  }
+  h2{
+    margin:.65rem 0 .2rem;
+    font-size:1.25rem;
+    line-height:1.2;
+  }
+  .prompt{
+    color:var(--muted);
+    margin-bottom:16px;
+  }
+  .choices{
+    display:grid;
+    grid-template-columns:repeat(2, minmax(0,1fr));
+    gap:10px;
+  }
+  .choice{
+    text-align:left;
+    min-height:88px;
+  }
+  .choice strong{display:block; margin-bottom:3px}
+  .choice small{color:var(--muted); font-size:.9rem}
+  .choice:disabled{
+    opacity:.55;
+    cursor:not-allowed;
+    transform:none;
+    box-shadow:none;
+  }
+  .feedback{
+    margin-top:14px;
+    padding:14px 15px;
+    border-radius:16px;
+    background:var(--panel-2);
+    border:1px solid var(--border);
+    display:none;
+  }
+  .feedback.show{display:block}
+  .feedback p:last-child{margin-bottom:0}
+  .action-row{
+    margin-top:12px;
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+  }
+  .reflection, .theory{
+    margin-top:18px;
+    display:none;
+  }
+  .reflection.show, .theory.show{display:block}
+  .split{
+    display:grid;
+    grid-template-columns:repeat(2, minmax(0,1fr));
+    gap:14px;
+  }
+  .mini{
+    background:#fff;
+    border:1px solid var(--border);
+    border-radius:16px;
+    padding:14px;
+  }
+  .mini h3{
+    margin:.1rem 0 .45rem;
+    font-size:1rem;
+  }
+  ol{padding-left:1.2rem; margin:.4rem 0 .2rem}
+  textarea{
+    width:100%;
+    border:1px solid var(--border);
+    border-radius:12px;
+    padding:12px;
+    min-height:110px;
+    font:inherit;
+    resize:vertical;
+    background:#fff;
+  }
+  .map-grid{
+    display:grid;
+    grid-template-columns:repeat(2, minmax(0,1fr));
+    gap:12px;
+    margin-top:12px;
+  }
+  .map-item{
+    border:1px solid var(--border);
+    border-radius:14px;
+    padding:12px;
+    background:#fff;
+  }
+  .map-item strong{display:block}
+  .map-item span{font-size:.95rem; color:var(--muted)}
+  .callout{
+    margin-top:14px;
+    padding:12px 14px;
+    border-radius:14px;
+    background:var(--panel-2);
+    border:1px solid var(--border);
+  }
+  .footer-note{
+    margin-top:12px;
+    color:var(--muted);
+    font-size:.84rem;
+  }
+
+  /* Plant SVG styles */
+  svg{display:block;width:100%;max-width:420px;height:auto;aspect-ratio:420 / 380}
+  .pot-shadow{filter: drop-shadow(0 8px 14px rgba(0,0,0,.08))}
+  .leaf{
+    transform-box: fill-box;
+    transform-origin: bottom center;
+    transition: transform .45s ease, opacity .45s ease, filter .45s ease;
+  }
+  .stem, .vine, .droplet, .root, .shine, .wobble, .soil-glow{
+    transition: all .45s ease;
+  }
+  .plant-svg.wilt .leaf{filter:saturate(.8); opacity:.85}
+  .plant-svg.wilt .leaf.l1{transform:rotate(13deg) translateY(10px)}
+  .plant-svg.wilt .leaf.l2{transform:rotate(-18deg) translateY(10px)}
+  .plant-svg.wilt .leaf.l3{transform:rotate(8deg) translateY(8px)}
+  .plant-svg.wilt .leaf.l4{transform:rotate(-8deg) translateY(9px)}
+  .plant-svg.thriving .leaf.l1{transform:rotate(-6deg) scale(1.04)}
+  .plant-svg.thriving .leaf.l2{transform:rotate(4deg) scale(1.05)}
+  .plant-svg.thriving .leaf.l3{transform:rotate(-3deg) scale(1.08)}
+  .plant-svg.thriving .leaf.l4{transform:rotate(5deg) scale(1.08)}
+  .plant-svg.thriving .new-growth{opacity:1}
+  .plant-svg .new-growth{opacity:0; transition:opacity .45s ease}
+  .plant-svg.damaged .leaf.tip-damage{filter:saturate(.6); opacity:.72}
+  .plant-svg.damaged .leaf.tip-damage .torn{opacity:1}
+  .plant-svg .torn{opacity:0}
+  .plant-svg.soaked .soil-glow{opacity:1}
+  .plant-svg .soil-glow{opacity:0}
+  .plant-svg.observed .root{opacity:1}
+  .plant-svg .root{opacity:0}
+  .plant-svg.observed .shine{opacity:1}
+  .plant-svg .shine{opacity:0}
+
+  @media (max-width: 860px){
+    .layout{grid-template-columns:1fr}
+  }
+  @media (max-width: 640px){
+    .choices,.split,.map-grid,.plant-metrics{grid-template-columns:1fr}
+    h1{font-size:1.6rem}
+  }
+
+  /* More visible state changes */
+  .plant-svg .leaf path:first-child{transition:fill .45s ease, opacity .45s ease, filter .45s ease}
+  .plant-svg.hydrated .leaf path:first-child{filter:saturate(1.12) brightness(1.05)}
+  .plant-svg.bright .leaf{filter:saturate(1.08)}
+  .plant-svg.bright .new-growth{opacity:.75}
+  .plant-svg.fertilized .new-growth{opacity:1}
+  .plant-svg.repotted .pot-body,
+  .plant-svg.repotted .pot-rim,
+  .plant-svg.repotted .pot-soil{transform-box:fill-box;transform-origin:center;transform:scale(1.08)}
+  .plant-svg.pruned .leaf.l3{opacity:.15;transform:translateY(8px) rotate(-22deg)}
+  .plant-svg.staked .stake{opacity:1}
+  .plant-svg.staked .stem.main{stroke-width:7}
+  .plant-svg.rotated .leaf.l1{transform:rotate(4deg) translateX(5px)}
+  .plant-svg.rotated .leaf.l2{transform:rotate(-4deg) translateX(-5px)}
+  .plant-svg.overfed .leaf path:first-child{filter:saturate(.7) brightness(.92)}
+  .plant-svg.overfed .leaf.l4{transform:rotate(9deg) translateY(7px)}
+  .plant-svg.soaked .leaf{filter:saturate(.72) brightness(.88)}
+  .plant-svg.soaked .leaf.l1{transform:rotate(15deg) translateY(13px)}
+  .plant-svg.soaked .leaf.l2{transform:rotate(-16deg) translateY(12px)}
+  .plant-svg.damaged .leaf.tip-damage{opacity:.5}
+  .plant-svg.observed .root{opacity:1}
+  .plant-svg.observed .shine{opacity:1}
+  .plant-svg .stake{opacity:0;transition:opacity .35s ease}
+  .plant-svg .pot-body,.plant-svg .pot-rim,.plant-svg .pot-soil{transition:transform .45s ease}
+  .plant-state-note{
+    margin-top:10px;
+    min-height:44px;
+    padding:9px 11px;
+    border-radius:12px;
+    background:#f5f2e9;
+    border:1px solid var(--border);
+    font-size:.9rem;
+    color:var(--muted);
+  }
+
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="header">
+    <div>
+      <div class="eyebrow">Pair Activity • 5–7 Minutes</div>
+      <h1>Can You Make It Grow?</h1>
+      <p class="sub">Work with a partner. Discuss each choice before selecting it. One partner can make the decision; the other explains the reasoning.</p>
+    </div>
+    <button class="ghost" id="resetBtn">Restart activity</button>
+  </div>
+
+  <div class="layout">
+    <section class="card plant-card">
+      <div class="plant-stage">
+        <svg id="plantSvg" class="plant-svg healthy" width="420" height="380" viewBox="0 0 420 380" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Interactive potted plant">
+          <defs>
+            <linearGradient id="leafGrad" x1="0" x2="1">
+              <stop offset="0%" stop-color="#5f8d62"/>
+              <stop offset="60%" stop-color="#7ea071"/>
+              <stop offset="100%" stop-color="#9cb589"/>
+            </linearGradient>
+            <linearGradient id="leafGradDark" x1="0" x2="1">
+              <stop offset="0%" stop-color="#4e7751"/>
+              <stop offset="100%" stop-color="#77936e"/>
+            </linearGradient>
+            <linearGradient id="potGrad" x1="0" x2="0" y1="0" y2="1">
+              <stop offset="0%" stop-color="#bd7e59"/>
+              <stop offset="100%" stop-color="#9f6644"/>
+            </linearGradient>
+            <linearGradient id="soilGrad" x1="0" x2="0" y1="0" y2="1">
+              <stop offset="0%" stop-color="#5e4a3d"/>
+              <stop offset="100%" stop-color="#413127"/>
+            </linearGradient>
+          </defs>
+
+          <ellipse cx="210" cy="325" rx="95" ry="18" fill="rgba(0,0,0,.06)" class="pot-shadow"/>
+          <ellipse cx="326" cy="54" rx="34" ry="34" fill="rgba(247,214,117,.55)"/>
+          <g class="root">
+            <path d="M200 263 C195 282, 185 294, 170 306" stroke="#80614e" stroke-width="2.4" fill="none"/>
+            <path d="M213 263 C220 282, 229 294, 245 307" stroke="#80614e" stroke-width="2.4" fill="none"/>
+            <path d="M208 266 C208 288, 207 297, 207 311" stroke="#80614e" stroke-width="2.2" fill="none"/>
+          </g>
+          <ellipse class="pot-soil" cx="210" cy="255" rx="64" ry="17" fill="url(#soilGrad)"/>
+          <ellipse cx="210" cy="252" rx="60" ry="11" fill="rgba(255,255,255,.05)"/>
+          <ellipse cx="210" cy="256" rx="74" ry="25" fill="#4c3a30" class="soil-glow"/>
+          <path class="pot-body" d="M146 255 L274 255 L288 324 Q210 347 132 324 Z" fill="url(#potGrad)" stroke="#8d5738" stroke-width="2"/>
+          <ellipse class="pot-rim" cx="210" cy="255" rx="74" ry="21" fill="url(#potGrad)" stroke="#8d5738" stroke-width="2"/>
+          <ellipse class="pot-soil" cx="210" cy="255" rx="64" ry="17" fill="url(#soilGrad)"/>
+
+          <!-- support stake appears when selected -->
+<line class="stake" x1="245" y1="292" x2="245" y2="118" stroke="#8b6a4f" stroke-width="5" stroke-linecap="round"/>
+<path class="stake" d="M241 188 Q226 182 214 188" stroke="#8b6a4f" stroke-width="2" fill="none"/>
+<!-- main stems -->
+          <path class="stem main" d="M210 285 C 206 240, 205 210, 209 165" stroke="#5e8a5f" stroke-width="8" stroke-linecap="round" fill="none"/>
+          <path class="stem vine" d="M209 206 C 190 202, 176 192, 160 176" stroke="#6c946b" stroke-width="5" stroke-linecap="round" fill="none"/>
+          <path class="stem vine" d="M211 192 C 233 186, 249 170, 262 150" stroke="#6c946b" stroke-width="5" stroke-linecap="round" fill="none"/>
+          <path class="stem vine" d="M208 175 C 190 167, 185 149, 185 132" stroke="#6c946b" stroke-width="4.5" stroke-linecap="round" fill="none"/>
+          <path class="stem vine" d="M209 166 C 225 160, 233 141, 233 124" stroke="#6c946b" stroke-width="4.5" stroke-linecap="round" fill="none"/>
+
+          <!-- leaves -->
+          <g class="leaf l1">
+            <path d="M159 176 C130 160, 119 133, 140 110 C166 82, 209 97, 207 133 C205 158, 189 172, 159 176 Z" fill="url(#leafGrad)" stroke="#4d704f" stroke-width="2"/>
+            <path d="M159 176 C165 156, 171 140, 178 126" stroke="#dfead7" stroke-width="2" opacity=".55" fill="none"/>
+          </g>
+          <g class="leaf l2">
+            <path d="M262 150 C284 142, 304 123, 301 99 C297 69, 255 60, 231 86 C212 107, 223 144, 262 150 Z" fill="url(#leafGrad)" stroke="#4d704f" stroke-width="2"/>
+            <path d="M262 150 C252 134, 245 120, 240 103" stroke="#dfead7" stroke-width="2" opacity=".55" fill="none"/>
+          </g>
+          <g class="leaf l3 tip-damage">
+            <path d="M185 131 C158 122, 138 100, 141 77 C145 48, 188 39, 209 65 C226 86, 219 120, 185 131 Z" fill="url(#leafGradDark)" stroke="#466648" stroke-width="2"/>
+            <path d="M185 131 C190 112, 193 95, 194 79" stroke="#dfead7" stroke-width="2" opacity=".5" fill="none"/>
+            <path class="torn" d="M148 88 C154 95, 161 98, 168 95" stroke="#735244" stroke-width="2.4" fill="none"/>
+          </g>
+          <g class="leaf l4">
+            <path d="M233 123 C254 117, 270 99, 270 79 C270 52, 235 42, 216 62 C200 79, 202 110, 233 123 Z" fill="url(#leafGradDark)" stroke="#466648" stroke-width="2"/>
+            <path d="M233 123 C228 107, 224 90, 223 75" stroke="#dfead7" stroke-width="2" opacity=".5" fill="none"/>
+          </g>
+
+          <!-- new growth -->
+          <g class="new-growth">
+            <path d="M210 162 C204 153, 204 144, 211 136 C219 144, 219 153, 210 162 Z" fill="#9abf7d" stroke="#5b7e52" stroke-width="1.6"/>
+            <path d="M214 155 C224 154, 231 147, 233 138 C221 138, 216 145, 214 155 Z" fill="#a5c787" stroke="#5b7e52" stroke-width="1.4"/>
+          </g>
+
+          <!-- observed shine -->
+          <circle class="shine" cx="165" cy="118" r="4" fill="#ffffff" opacity=".85"/>
+          <circle class="shine" cx="249" cy="92" r="3.5" fill="#ffffff" opacity=".8"/>
+        </svg>
+      </div>
+      <div id="plantStateNote" class="plant-state-note" aria-live="polite">The plant is slightly droopy. Watch what changes as you make decisions.</div>
+      <div class="plant-metrics">
+        <div class="metric"><div class="label">Moisture</div><strong id="moistureVal">2 / 5</strong></div>
+        <div class="metric"><div class="label">Light</div><strong id="lightVal">2 / 5</strong></div>
+        <div class="metric"><div class="label">Root space</div><strong id="spaceVal">2 / 5</strong></div>
+      </div>
+    </section>
+
+    <section class="card content-card">
+      <div class="status"><span class="dot"></span><span id="roundLabel">Round 1 of 4</span></div>
+      <h2 id="promptTitle">The plant looks a little droopy.</h2>
+      <p class="prompt" id="promptText">Partner A: What do you think the plant needs? Partner B: What evidence are you using?</p>
+
+      <div class="choices" id="choiceGrid"></div>
+
+      <div class="feedback" id="feedbackBox"></div>
+      <div class="action-row">
+        <button class="primary" id="nextBtn" style="display:none">Next round</button>
+      </div>
+
+      <section class="reflection" id="reflectionSection">
+        <div class="split">
+          <div class="mini">
+            <h3>Discuss together</h3>
+            <ol>
+              <li>Which choices supported growth? Which tried to control growth?</li>
+              <li>When did “more help” become less helpful?</li>
+              <li>At what point did you realize that acting quickly was not the same as understanding what was needed?</li>
+              <li>What might this suggest about the counselor’s role?</li>
+            </ol>
+          </div>
+          <div class="mini">
+            <h3>Pair response</h3>
+            <label for="pairResponse">Finish the sentence: <em>“Growth seemed most possible when…”</em></label>
+            <textarea id="pairResponse" placeholder="Growth seemed most possible when..."></textarea>
+          </div>
+        </div>
+        <div class="action-row">
+          <button class="primary" id="revealBtn">Connect it to Rogers</button>
+        </div>
+      </section>
+
+      <section class="theory" id="theorySection">
+        <h2 style="font-size:1.12rem">Connecting the simulation to Person-Centered Theory</h2>
+        <div class="map-grid">
+          <div class="map-item"><strong>Plant’s capacity for growth</strong><span>Actualizing tendency</span></div>
+          <div class="map-item"><strong>Light, water, space, time</strong><span>Facilitating conditions</span></div>
+          <div class="map-item"><strong>Trying to pull the plant upward</strong><span>Trying to impose change from outside</span></div>
+          <div class="map-item"><strong>Overhelping or mismatched help</strong><span>More intervention is not automatically better intervention</span></div>
+          <div class="map-item"><strong>Observing this plant carefully</strong><span>Understanding the person from their frame of reference</span></div>
+          <div class="map-item"><strong>Different needs and responses</strong><span>Context and individual differences matter</span></div>
+        </div>
+        <div class="callout"><strong>Key idea:</strong> You did not manufacture growth. You influenced the conditions in which growth could occur.</div>
+        <div class="footer-note">Metaphor limit: clients are not passive plants. People have agency, culture, histories, relationships, and social contexts. The metaphor is useful specifically for Rogers’ idea that growth is facilitated rather than imposed.</div>
+      </section>
+    </section>
+  </div>
+</div>
+
+
+<script>
+(() => {
+  const rounds = [
+    {
+      title: "The plant looks a little droopy.",
+      text: "Partner A: Choose what you think would help. Partner B: explain what clues support that choice.",
+      choices: [
+        { key: "water", title: "Water it", desc: "Give it more water right away." },
+        { key: "light", title: "Move it toward light", desc: "Change where it sits." },
+        { key: "fertilize", title: "Add fertilizer", desc: "Give it more nutrients." },
+        { key: "rotate", title: "Rotate the pot", desc: "Change which side faces the window." }
+      ]
+    },
+    {
+      title: "A few days later, growth is still slow.",
+      text: "Switch roles. Partner B chooses; Partner A asks, “What makes you think that?”",
+      choices: [
+        { key: "repot", title: "Move it to a larger pot", desc: "Give the roots more room." },
+        { key: "water", title: "Water it again", desc: "Assume it still needs more moisture." },
+        { key: "prune", title: "Prune a leaf", desc: "Remove a leaf so energy can go elsewhere." },
+        { key: "light", title: "Move it closer to the window", desc: "Increase the amount of light." }
+      ]
+    },
+    {
+      title: "The plant is growing, but unevenly.",
+      text: "Together decide what you would do next. There may be more than one reasonable option.",
+      choices: [
+        { key: "stake", title: "Stake it upright", desc: "Support the stem so it grows straighter." },
+        { key: "rotate", title: "Rotate the pot", desc: "Change its orientation to the light." },
+        { key: "fertilize", title: "Add fertilizer", desc: "Try to stimulate stronger growth." },
+        { key: "water", title: "Water it again", desc: "Give it another boost." }
+      ]
+    },
+    {
+      title: "Now the plant is giving mixed signals.",
+      text: "You have already tried several things. Before choosing, agree on what good helping should look like when you are not certain what is needed.",
+      choices: [
+        { key: "change", title: "Change one more condition", desc: "Try another adjustment and see what happens." },
+        { key: "guide", title: "Check a care guide", desc: "Use outside information to decide what the plant should need." },
+        { key: "observe", title: "Pause and observe", desc: "Attend closely to the plant before making another change." },
+        { key: "stake", title: "Support it physically", desc: "Add a stake and gently reposition the stem." }
+      ]
+    }
+  ];
+
+  const state = {
+    round: 1,
+    moisture: 2,
+    light: 2,
+    space: 2,
+    nutrients: 2,
+    damage: 0,
+    observed: false,
+    hydrated: false,
+    fertilized: false,
+    repotted: false,
+    pruned: false,
+    staked: false,
+    rotated: false,
+    history: []
+  };
+
+  const promptTitle = document.getElementById("promptTitle");
+  const promptText = document.getElementById("promptText");
+  const roundLabel = document.getElementById("roundLabel");
+  const moistureVal = document.getElementById("moistureVal");
+  const lightVal = document.getElementById("lightVal");
+  const spaceVal = document.getElementById("spaceVal");
+  const feedbackBox = document.getElementById("feedbackBox");
+  const nextBtn = document.getElementById("nextBtn");
+  const reflectionSection = document.getElementById("reflectionSection");
+  const theorySection = document.getElementById("theorySection");
+  const revealBtn = document.getElementById("revealBtn");
+  const resetBtn = document.getElementById("resetBtn");
+  const plantSvg = document.getElementById("plantSvg");
+  const mainStem = plantSvg.querySelector(".stem.main");
+  const plantStateNote = document.getElementById("plantStateNote");
+  const choiceGrid = document.getElementById("choiceGrid");
+
+  function clamp(n){ return Math.max(0, Math.min(5, n)); }
+
+  function applyVisualState() {
+    moistureVal.textContent = `${state.moisture} / 5`;
+    lightVal.textContent = `${state.light} / 5`;
+    spaceVal.textContent = `${state.space} / 5`;
+
+    plantSvg.classList.remove(
+      "healthy","leaning","wilt","thriving","damaged","soaked","observed",
+      "hydrated","bright","fertilized","repotted","pruned","staked","rotated","overfed"
+    );
+    plantSvg.classList.add("healthy");
+
+    if (state.hydrated) plantSvg.classList.add("hydrated");
+    if (state.light >= 4) {
+      plantSvg.classList.add("bright","leaning");
+      mainStem.setAttribute("d", "M210 285 C206 245 222 218 236 168");
+    } else {
+      mainStem.setAttribute("d", "M210 285 C206 240 205 210 209 165");
+    }
+    if (state.moisture < 2 || state.light < 2) plantSvg.classList.add("wilt");
+    if (state.moisture > 4) plantSvg.classList.add("soaked");
+    if (state.nutrients > 4) plantSvg.classList.add("overfed");
+    if (state.damage > 0) plantSvg.classList.add("damaged");
+    if (state.observed) plantSvg.classList.add("observed");
+    if (state.fertilized) plantSvg.classList.add("fertilized");
+    if (state.repotted) plantSvg.classList.add("repotted");
+    if (state.pruned) plantSvg.classList.add("pruned");
+    if (state.staked) plantSvg.classList.add("staked");
+    if (state.rotated) plantSvg.classList.add("rotated");
+
+    if (
+      state.moisture >= 2 && state.moisture <= 4 &&
+      state.light >= 3 && state.space >= 3 &&
+      state.nutrients >= 2 && state.nutrients <= 4 &&
+      state.damage === 0
+    ) plantSvg.classList.add("thriving");
+
+    let notes = [];
+    if (state.moisture > 4) notes.push("The soil looks saturated and the leaves are beginning to droop.");
+    else if (state.hydrated) notes.push("The leaves look a little more hydrated.");
+    if (state.light >= 4) notes.push("The stems are visibly orienting toward the brighter side.");
+    if (state.repotted) notes.push("The plant now has noticeably more room at the roots.");
+    if (state.fertilized && state.nutrients <= 4) notes.push("A small area of new growth is emerging.");
+    if (state.nutrients > 4) notes.push("Some leaves are showing stress from too much fertilizer.");
+    if (state.pruned) notes.push("One leaf has been removed.");
+    if (state.staked) notes.push("A support stake is holding the stem more upright.");
+    if (state.damage > 0 && !state.pruned) notes.push("One leaf shows visible damage.");
+    if (state.observed) notes.push("Closer observation reveals crowded roots and uneven conditions.");
+
+    plantStateNote.textContent = notes.length
+      ? notes.join(" ")
+      : "The plant is slightly droopy. Watch what changes as you make decisions.";
+  }
+
+  function responseFor(choice) {
+    state.history.push(choice);
+
+    if (choice === "water") {
+      state.moisture = clamp(state.moisture + 2);
+      state.hydrated = true;
+      if (state.moisture > 4) {
+        return {
+          text: "The soil is now quite wet, and the leaves look heavier rather than healthier.",
+          prompt: "What assumption did you make about what drooping meant?"
+        };
+      }
+      return {
+        text: "The soil is moister and the leaves lift slightly. The plant responds, but growth is still gradual.",
+        prompt: "Did the response confirm your explanation—or only show that water had some effect?"
+      };
+    }
+
+    if (choice === "light") {
+      state.light = clamp(state.light + 2);
+      state.rotated = false;
+      return {
+        text: "Over time, the plant begins orienting itself toward the brighter area.",
+        prompt: "What did changing the environment accomplish that direct manipulation could not?"
+      };
+    }
+
+    if (choice === "fertilize") {
+      state.nutrients = clamp(state.nutrients + 2);
+      state.fertilized = true;
+      if (state.nutrients > 4) {
+        state.damage += 1;
+        return {
+          text: "More fertilizer does not produce faster healthy growth. One leaf begins showing stress.",
+          prompt: "When can 'more help' become mismatched help?"
+        };
+      }
+      return {
+        text: "There is no immediate dramatic change. Nutrients may matter, but they do not override every other condition.",
+        prompt: "What does this suggest about looking for one universal solution?"
+      };
+    }
+
+    if (choice === "rotate") {
+      state.light = clamp(state.light + 1);
+      state.rotated = true;
+      return {
+        text: "The plant gradually shifts its orientation. Growth becomes a little more balanced.",
+        prompt: "What did the plant itself do once the surrounding condition changed?"
+      };
+    }
+
+    if (choice === "repot") {
+      state.space = clamp(state.space + 2);
+      state.repotted = true;
+      return {
+        text: "With more root space, the plant has room to continue developing, though the change is not immediate.",
+        prompt: "How is creating room different from producing growth?"
+      };
+    }
+
+    if (choice === "prune") {
+      state.damage += 1;
+      state.pruned = true;
+      return {
+        text: "The plant survives the pruning, but the intervention removes something before you know whether it was the problem.",
+        prompt: "What can happen when we act before understanding what the organism is communicating?"
+      };
+    }
+
+    if (choice === "stake") {
+      state.staked = true;
+      return {
+        text: "The stem looks straighter because you are supporting it from the outside. Its underlying growth pattern has not necessarily changed.",
+        prompt: "How is appearing improved different from developing differently?"
+      };
+    }
+
+    if (choice === "change") {
+      state.moisture = clamp(state.moisture + 1);
+      return {
+        text: "Another change gives you one more variable to interpret—but it is now harder to know which condition is affecting the plant.",
+        prompt: "What might your urge to keep intervening be responding to: the plant's needs, or your uncertainty?"
+      };
+    }
+
+    if (choice === "guide") {
+      return {
+        text: "The guide gives useful general information, but it cannot tell you exactly what is happening with this particular plant in this moment.",
+        prompt: "How can expertise help without replacing attention to the individual in front of you?"
+      };
+    }
+
+    if (choice === "observe") {
+      state.observed = true;
+      state.space = clamp(state.space + 1);
+      return {
+        text: "You notice that the soil is already moist, one side is reaching toward light, and the roots are crowded. The plant was giving information before you acted.",
+        prompt: "What became possible when you attended before deciding what the plant needed?"
+      };
+    }
+
+    return {
+      text: "The plant responds in its own way.",
+      prompt: "What did you learn from that response?"
+    };
+  }
+
+  function renderChoices() {
+    choiceGrid.innerHTML = "";
+    const round = rounds[state.round - 1];
+
+    round.choices.forEach(item => {
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "choice";
+      btn.dataset.choice = item.key;
+      btn.innerHTML = `<strong>${item.title}</strong><small>${item.desc}</small>`;
+      btn.addEventListener("click", handleChoice);
+      choiceGrid.appendChild(btn);
+    });
+  }
+
+  function lockChoices(locked) {
+    Array.from(choiceGrid.querySelectorAll(".choice")).forEach(btn => btn.disabled = locked);
+  }
+
+  function updateRoundText() {
+    const r = rounds[state.round - 1];
+    roundLabel.textContent = `Round ${state.round} of ${rounds.length}`;
+    promptTitle.textContent = r.title;
+    promptText.textContent = r.text;
+    renderChoices();
+  }
+
+  function handleChoice(e) {
+    const result = responseFor(e.currentTarget.dataset.choice);
+    feedbackBox.innerHTML = `
+      <strong>What happened?</strong>
+      <p>${result.text}</p>
+      <p><em>Pair prompt:</em> ${result.prompt}</p>
+    `;
+    feedbackBox.classList.add("show");
+    lockChoices(true);
+    nextBtn.style.display = "inline-block";
+    applyVisualState();
+  }
+
+  function goNext() {
+    if (state.round < rounds.length) {
+      state.round += 1;
+      updateRoundText();
+      feedbackBox.classList.remove("show");
+      feedbackBox.innerHTML = "";
+      nextBtn.style.display = "none";
+    } else {
+      choiceGrid.style.display = "none";
+      feedbackBox.classList.remove("show");
+      nextBtn.style.display = "none";
+      roundLabel.textContent = "Debrief";
+      promptTitle.textContent = "Simulation complete";
+      promptText.textContent = "Now step out of gardener mode and think like counselors.";
+      reflectionSection.classList.add("show");
+      reflectionSection.scrollIntoView({behavior:"smooth", block:"nearest"});
+    }
+  }
+
+  function revealTheory() {
+    theorySection.classList.add("show");
+    theorySection.scrollIntoView({behavior:"smooth", block:"nearest"});
+  }
+
+  function resetAll() {
+    state.round = 1;
+    state.moisture = 2;
+    state.light = 2;
+    state.space = 2;
+    state.nutrients = 2;
+    state.damage = 0;
+    state.observed = false;
+    state.hydrated = false;
+    state.fertilized = false;
+    state.repotted = false;
+    state.pruned = false;
+    state.staked = false;
+    state.rotated = false;
+    state.history = [];
+
+    document.getElementById("pairResponse").value = "";
+    choiceGrid.style.display = "grid";
+    feedbackBox.classList.remove("show");
+    feedbackBox.innerHTML = "";
+    nextBtn.style.display = "none";
+    reflectionSection.classList.remove("show");
+    theorySection.classList.remove("show");
+    updateRoundText();
+    applyVisualState();
+  }
+
+  nextBtn.addEventListener("click", goNext);
+  revealBtn.addEventListener("click", revealTheory);
+  resetBtn.addEventListener("click", resetAll);
+
+  updateRoundText();
+  applyVisualState();
+})();
+</script>
+
+</body>
+</html>
